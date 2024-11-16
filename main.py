@@ -4,15 +4,16 @@ from openpyxl.styles import PatternFill
 from io import BytesIO
 import pandas as pd
 
-def format_excel(file, row_number):
+def format_excel(file, row_numbers):
     try:
         workbook = openpyxl.load_workbook(file)
         sheet = workbook.active
 
         yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
-        for cell in sheet[row_number]:
-            cell.fill = yellow_fill
+        for row_number in row_numbers:
+            for cell in sheet[row_number]:
+                cell.fill = yellow_fill
 
         for column in sheet.columns:
             max_length = 0
@@ -47,10 +48,11 @@ def main():
             st.write("File preview:")
             st.dataframe(df.head())
 
-            row_number = st.number_input("Enter the row number to highlight:", min_value=1, value=1, step=1)
+            row_numbers = st.text_input("Enter the row numbers to highlight (comma-separated):", "1")
+            row_numbers = [int(x.strip()) for x in row_numbers.split(',') if x.strip().isdigit()]
 
             if st.button("Format Excel"):
-                formatted_file = format_excel(uploaded_file, row_number)
+                formatted_file = format_excel(uploaded_file, row_numbers)
 
                 if formatted_file:
                     st.download_button(
